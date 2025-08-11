@@ -27,3 +27,23 @@ path{transition:all .5s; fill:rgba(0,0,0,0.6);stroke: rgba(0,0,0,0.5);}
 /*.flag{position:absolute;top:10px;right:20px;border:3px solid #f7ffe8;border-radius:3px;
   }*/
 .capital{clear:both;}
+.video-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1; /* Чтобы видео было под основным контентом */
+  overflow: hidden;
+}
+
+#bg-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Видео заполняет весь экран без искажений */
+}
+
+/* Опционально: стиль для "замороженного" последнего кадра */
+#bg-video.paused-on-last-frame {
+  filter: brightness(1.05); /* Легкая коррекция, если нужно */
+}
