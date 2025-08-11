@@ -1,156 +1,573 @@
 <!DOCTYPE html>
-<html >
+<html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Russia svg with API</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
-
-
-  
-  
-  
- <!-- В head: шрифт, мета viewport, стили -->
-<meta name="viewport" content="width=device-width,initial-scale=1">
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-
-<style>
-  :root{
-    --bg1:#0f1724;
-    --bg2:#0b2540;
-    --card:#ffffff;
-    --accent:#2dd4bf;
-    --muted: rgba(255,255,255,0.75);
-  }
-
-  html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--muted);-webkit-font-smoothing:antialiased}
-  a{color:var(--accent);text-decoration:none}
-  .container{max-width:1200px;margin:28px auto;padding:24px;box-sizing:border-box}
-
-  /* Header / nav */
-  .site-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
-  .brand{display:flex;align-items:center;gap:12px}
-  .brand .logo{width:48px;height:48px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#60a5fa);display:flex;align-items:center;justify-content:center;font-weight:700;color:#062;box-shadow:0 6px 20px rgba(2,6,23,0.6)}
-  .brand h1{font-size:18px;margin:0;color:#fff}
-  .nav{display:flex;gap:16px;align-items:center}
-  .nav a{padding:8px 12px;border-radius:8px;transition:all .2s;font-weight:600;color:rgba(255,255,255,0.85)}
-  .nav a:hover{background:rgba(255,255,255,0.04);transform:translateY(-2px)}
-
-  /* layout: map + sidebar */
-  .layout{display:grid;grid-template-columns: 1fr 320px;gap:18px;align-items:start}
-  @media (max-width:900px){ .layout{grid-template-columns: 1fr; } .info-panel{order:2} }
-
-  .map-card{background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));padding:16px;border-radius:12px;box-shadow:0 10px 30px rgba(2,6,23,0.6);overflow:hidden}
-  /* make svg responsive and centered */
-  .map-wrap{width:100%;height:calc(100vh - 220px);min-height:360px;display:flex;align-items:center;justify-content:center}
-  .map-wrap svg{max-width:100%;max-height:100%;height:auto;width:auto;display:block;transition:transform .45s ease}
-
-  /* path hover */
-  svg path{transition:fill .18s,stroke .18s,transform .18s;cursor:pointer}
-  svg path:hover{fill:var(--accent);fill-opacity:0.15;stroke:var(--accent);stroke-width:1.2;transform:scale(1.02);filter:drop-shadow(0 6px 18px rgba(45,212,191,0.12))}
-
-  /* info panel */
-  .info-panel{background:var(--card);color:#0b1220;border-radius:12px;padding:16px;min-height:200px;box-shadow:0 10px 24px rgba(2,6,23,0.5)}
-  .info-panel h2{margin:0 0 6px;font-size:18px;color:#071127}
-  .info-panel .meta{font-size:13px;color:#475569;margin-bottom:12px}
-  .info-panel .desc{font-size:14px;color:#0b1220;line-height:1.45}
-
-  /* region list */
-  .regs{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
-  .regs .reg{background:#f1f5f9;padding:8px 10px;border-radius:8px;color:#0b1220;font-weight:600;cursor:pointer;transition:transform .12s}
-  .regs .reg:hover{transform:translateY(-3px);box-shadow:0 8px 18px rgba(11,18,32,0.06)}
-
-  /* tooltip / indicator (update styles) */
-  .indicator{
-    position:fixed;pointer-events:none;z-index:50;
-    background:rgba(2,6,23,0.9);color:#fff;padding:8px 12px;border-radius:8px;font-size:13px;display:none;transform:translate(-50%,-120%);white-space:nowrap;
-  }
-
-  /* small UI niceties */
-  .search{padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--muted)}
-  .btn{display:inline-block;padding:8px 12px;border-radius:10px;background:var(--accent);color:#042; font-weight:700}
-</style>
-
-
-    html {
-      background: #ECECEC;
-      font-family: sans-serif;
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Субъекты России | Интерактивная карта</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <style>
+    :root {
+      --bg1: #0f1724;
+      --bg2: #0b2540;
+      --card: #ffffff;
+      --accent: #2dd4bf;
+      --accent-dark: #1bb3a0;
+      --muted: rgba(255,255,255,0.75);
+      --text-dark: #0b1220;
+      --shadow: rgba(2,6,23,0.6);
     }
 
-    *{margin:0;padding:0;}
-
-    svg{
-      width:100%;
-      margin-top: 2%; 
-      
-    }
-    path{transition:all .5s;fill:rgba(0,0,0,0);stroke:rgba(0,0,0,0.5);}
-
-    .indicator{
-      position:absolute;
-      display:inline;
-      background:rgba(0,0,0,1);
-      color:#f1f1f1;
-      padding:10px 30px;
-      font:20px Arial;
-      border-radius:5px;
-      min-width:300px;
-      
-      text-transform:capitalize;
-      display:none;
-      
-
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    .flag {
-      width: 80px;
+    html, body {
+      height: 100%;
+      font-family: 'Inter', system-ui, Arial, sans-serif;
+      background: linear-gradient(180deg, var(--bg1), var(--bg2));
+      color: var(--muted);
+      -webkit-font-smoothing: antialiased;
+      scroll-behavior: smooth;
     }
 
-    .clear{clear:both}
-    .name{float:left;margin-right:30px;}
-    /*.flag{position:absolute;top:10px;right:20px;border:3px solid #f7ffe8;border-radius:3px;
-    }*/
-
-    .regs {
-      columns: 5;
-      padding: 10px;
+    a {
+      color: var(--accent);
+      text-decoration: none;
+      transition: all 0.3s ease;
     }
 
-    .reg span {
-      font-size: 10px;
-
+    a:hover {
+      color: var(--accent-dark);
     }
 
-    .regs div {
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Header */
+    .site-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 30px;
+      padding: 15px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      animation: fadeIn 1s ease;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .logo {
+      width: 60px;
+      height: 60px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), #60a5fa);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: #042;
+      box-shadow: 0 6px 20px var(--shadow);
+      animation: pulse 2s infinite;
+    }
+
+    .logo i {
+      font-size: 28px;
+    }
+
+    .brand h1 {
+      font-size: 24px;
+      margin: 0;
+      color: #fff;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .nav {
+      display: flex;
+      gap: 25px;
+      align-items: center;
+    }
+
+    .nav a {
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.85);
+      position: relative;
+    }
+
+    .nav a:hover {
+      background: rgba(255,255,255,0.04);
+      transform: translateY(-2px);
+    }
+
+    .nav a::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--accent);
+      transition: width 0.3s ease;
+    }
+
+    .nav a:hover::after {
+      width: 100%;
+    }
+
+    /* Layout */
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 25px;
+      align-items: start;
+      animation: slideUp 0.8s ease;
+    }
+
+    @media (max-width: 1100px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .info-panel {
+        order: 2;
+      }
+    }
+
+    /* Map Card */
+    .map-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 12px 35px var(--shadow);
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .map-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(2,6,23,0.8);
+    }
+
+    .map-wrap {
+      width: 100%;
+      height: calc(100vh - 240px);
+      min-height: 420px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .map-wrap svg {
+      max-width: 100%;
+      max-height: 100%;
+      height: auto;
       width: auto;
-      font-size: 14px;
-      /* columns: 3;*/
-      cursor: pointer;
-
+      display: block;
+      transition: transform 0.45s ease;
     }
 
+    /* Path hover and active */
+    svg path {
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
 
-    .capital{clear:both;}
+    svg path:hover {
+      fill: var(--accent);
+      fill-opacity: 0.25;
+      stroke: var(--accent);
+      stroke-width: 1.5;
+      transform: scale(1.03);
+      filter: drop-shadow(0 6px 18px rgba(45,212,191,0.15));
+    }
+
+    svg path.active {
+      fill: var(--accent);
+      fill-opacity: 0.4;
+      stroke: var(--accent-dark);
+      stroke-width: 2px;
+      transform: scale(1.05);
+      filter: drop-shadow(0 8px 20px rgba(45,212,191,0.25));
+      z-index: 10;
+      animation: pulseRegion 1.5s infinite;
+    }
+
+    /* Info Panel */
+    .info-panel {
+      background: var(--card);
+      color: var(--text-dark);
+      border-radius: 16px;
+      padding: 25px;
+      box-shadow: 0 12px 35px rgba(2,6,23,0.5);
+      border: 1px solid rgba(11, 18, 32, 0.1);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s ease;
+      transform: translateY(20px);
+      opacity: 0;
+      animation: fadeInUp 0.8s 0.3s forwards;
+    }
+
+    .info-panel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 5px;
+      height: 100%;
+      background: linear-gradient(to bottom, var(--accent), #60a5fa);
+    }
+
+    .info-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(11, 18, 32, 0.1);
+    }
+
+    .region-flag {
+      width: 100px;
+      height: 60px;
+      border: 1px solid #eee;
+      border-radius: 4px;
+      object-fit: cover;
+      margin-right: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .info-header h2 {
+      margin: 0;
+      font-size: 22px;
+      color: #071127;
+      flex-grow: 1;
+    }
+
+    .meta {
+      font-size: 14px;
+      color: #475569;
+      margin-bottom: 15px;
+      display: flex;
+      gap: 15px;
+    }
+
+    .meta span {
+      background: #f1f5f9;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+    }
+
+    .desc {
+      font-size: 16px;
+      color: var(--text-dark);
+      line-height: 1.6;
+      margin-bottom: 25px;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .info-links {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 12px 25px;
+      border-radius: 10px;
+      background: var(--accent);
+      color: #042;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(45, 212, 191, 0.3);
+    }
+
+    .btn:hover {
+      background: var(--accent-dark);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(45, 212, 191, 0.4);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--accent);
+      color: var(--accent);
+    }
+
+    .btn-outline:hover {
+      background: rgba(45, 212, 191, 0.1);
+    }
+
+    /* Region list */
+    .regs {
+      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .regs .reg {
+      background: #f1f5f9;
+      padding: 10px 15px;
+      border-radius: 10px;
+      color: var(--text-dark);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 14px;
+    }
+
+    .regs .reg:hover {
+      background: var(--accent);
+      color: white;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 18px rgba(11,18,32,0.1);
+    }
+
+    .regs .reg.active {
+      background: var(--accent);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(45, 212, 191, 0.3);
+    }
+
+    /* Tooltip */
+    .indicator {
+      position: fixed;
+      pointer-events: none;
+      z-index: 100;
+      background: rgba(2,6,23,0.9);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      display: none;
+      transform: translate(-50%, -130%);
+      white-space: nowrap;
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: 50px;
+      padding: 30px 0;
+      text-align: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      color: rgba(255,255,255,0.6);
+      font-size: 14px;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 15px;
+    }
+
+    .footer-links a {
+      color: rgba(255,255,255,0.7);
+    }
+
+    .footer-links a:hover {
+      color: var(--accent);
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes pulseRegion {
+      0% { stroke-width: 2px; }
+      50% { stroke-width: 3px; }
+      100% { stroke-width: 2px; }
+    }
+
+    /* Search */
+    .search-container {
+      margin-bottom: 25px;
+      position: relative;
+    }
+
+    .search {
+      width: 100%;
+      padding: 14px 20px 14px 50px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03);
+      color: var(--muted);
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .search:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: rgba(255,255,255,0.05);
+      box-shadow: 0 0 0 3px rgba(45,212,191,0.2);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+    }
+
+    /* Stats */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin-top: 25px;
+    }
+
+    .stat-card {
+      background: #f1f5f9;
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--accent-dark);
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: #64748b;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #94a3b8;
+    }
+
+    .empty-state i {
+      font-size: 48px;
+      margin-bottom: 15px;
+      color: #cbd5e1;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .site-header {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .nav {
+        margin-top: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      
+      .brand {
+        justify-content: center;
+      }
+      
+      .info-header {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .region-flag {
+        margin: 0 auto 15px;
+      }
+      
+      .stats {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
-
-
-  <script src="js/prefixfree.min.js"></script>
-
-
 </head>
-
-
-
 <body>
   <div class="container">
-    <!-- header (ставим вместо существующего текста заголовка) -->
-    [Субъекты России]
+    <!-- Header -->
+    <header class="site-header">
+      <div class="brand">
+        <div class="logo">
+          <i class="fas fa-map-marked-alt"></i>
+        </div>
+        <h1>Субъекты Российской Федерации</h1>
+      </div>
+      <nav class="nav">
+        <a href="#"><i class="fas fa-home"></i> Главная</a>
+        <a href="#"><i class="fas fa-book"></i> О проекте</a>
+        <a href="#"><i class="fas fa-database"></i> Данные</a>
+        <a href="#"><i class="fas fa-envelope"></i> Контакты</a>
+      </nav>
+    </header>
+
+    <!-- Search -->
+    <div class="search-container">
+      <i class="fas fa-search search-icon"></i>
+      <input type="text" class="search" placeholder="Поиск субъекта РФ...">
+    </div>
+
     <div class="layout">
+      <!-- Map Card -->
       <div class="map-card">
-         <div class="map-wrap">
-             <svg xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.2" baseProfile="tiny" id="svg2" x="0px" y="0px" width="950px" height="620px" viewBox="0 0 1090 620" xml:space="preserve" xmlns:xml="http://www.w3.org/XML/1998/namespace"> 
-    <path d="m 130.24729,259.26463 -0.71301,-1.3323 -0.83965,1.13893 -1.20312,0.61639 -0.3652,1.98343 -2.7566,-1.20341 -1.29507,1.2557 -1.79887,-1.96928 -0.51738,2.08913 -1.70104,0.51357 0.48353,2.36036 1.41813,-1.06374 1.07846,1.34199 2.31013,-0.11587 0.63117,-1.4221 0.77636,1.28888 1.63087,-0.86752 1.60105,1.08107 2.52028,-0.21377 0.38854,-1.63667 -0.76508,-2.45949 0.30997,-0.96605 c -0.75062,0.0982 -0.83803,-0.13605 -1.19347,-0.41925 z" stroke="#888888" stroke-width="0.5" id="RU-MOW"></path>
+        <div class="map-wrap">
+          <svg xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.2" baseProfile="tiny" id="svg2" x="0px" y="0px" width="950px" height="620px" viewBox="0 0 1090 620" xml:space="preserve" xmlns:xml="http://www.w3.org/XML/1998/namespace"> 
+            <!-- Вставлен ваш SVG-код карты России -->
+            <path d="m 130.24729,259.26463 -0.71301,-1.3323 -0.83965,1.13893 -1.20312,0.61639 -0.3652,1.98343 -2.7566,-1.20341 -1.29507,1.2557 -1.79887,-1.96928 -0.51738,2.08913 -1.70104,0.51357 0.48353,2.36036 1.41813,-1.06374 1.07846,1.34199 2.31013,-0.11587 0.63117,-1.4221 0.77636,1.28888 1.63087,-0.86752 1.60105,1.08107 2.52028,-0.21377 0.38854,-1.63667 -0.76508,-2.45949 0.30997,-0.96605 c -0.75062,0.0982 -0.83803,-0.13605 -1.19347,-0.41925 z" stroke="#888888" stroke-width="0.5" id="RU-MOW"></path>
     <path d="m 136.30673,181.67516 -2.95955,-0.98651 -3.94605,0.98651 -0.98652,3.94606 0.98652,2.95954 3.94605,1.97303 2.95955,-1.97303 1.97302,-2.95954 -1.97302,-3.94606 z" stroke="#888888" stroke-width="0.5" id="RU-SPE"></path>
     <path d="m 305.00066,165.89094 -4.93257,0 -3.94605,3.94605 0.98651,3.94606 4.93257,0.98651 0.98652,0 0.98651,-0.98651 0.98651,0 0,0 0.98652,-0.98651 0,0.98651 0,0 -0.98652,0.98651 0,0 0.98652,0 0.98651,-0.98651 0,-3.94606 -1.97303,-3.94605 z m 45.37966,22.68982 1.97303,0.98652 0,0.98651 0,0.98652 0,0.98651 2.95954,1.97303 1.97303,-2.95954 -0.98652,-2.95955 -0.98651,-2.95954 0,0 0,-1.97303 -0.98651,-1.97303 -1.97303,0 0,1.97303 -0.98652,0 -0.98651,0 0,4.93257 z m -27.6224,-0.98651 -2.95954,-0.98651 -3.94606,-0.98652 -4.93257,0.98652 0,0 0.98651,0.98651 0,1.97303 -1.97303,0 -0.98651,-0.98652 0,-0.98651 0.98651,-0.98651 -2.95954,-0.98652 -2.95954,0 -0.98651,0 -0.98652,-0.98651 -5.91908,0.98651 -5.91909,-0.98651 -0.98651,-0.98652 0,-0.98651 0,0.98651 0,0 0,0.98652 -0.98652,0 0,0.98651 0,1.97303 0,0 -0.98651,-1.97303 -1.97303,-0.98651 -0.98652,-0.98652 -3.94605,2.95955 -3.94606,3.94605 -4.93257,-1.97303 -3.94606,-2.95954 0.98652,-2.95954 0.98651,-1.97303 -0.98651,-1.97303 -0.98652,-1.97303 3.94606,-1.97303 2.95954,-0.98651 4.93257,2.95954 0.98652,-0.98651 0.98651,-0.98652 0,-0.98651 0.98652,0 0,-2.95954 0,-2.95955 -2.95955,-3.94605 -3.94605,-2.95955 -0.98652,-2.95954 -0.98651,-0.98651 0,2.95954 0,4.93257 -5.91909,4.93257 -4.93257,3.94606 0,2.95954 0,2.95955 -3.94606,2.95954 -1.97302,1.97303 0,0.98651 0,1.97303 3.94605,5.91908 2.95954,5.91909 0.98652,1.97303 0.98651,0.98651 0,0.98652 1.97303,0 0,0 0,-0.98652 1.97303,-0.98651 1.97303,0 1.97303,0.98651 1.97303,1.97303 0,0 6.9056,0 7.89211,0.98652 1.97303,-0.98652 0.98651,-0.98651 0.98652,0.98651 0,0.98652 1.97303,-0.98652 1.97302,0 4.93258,3.94606 5.91908,4.93257 29.59543,17.75726 0.98651,0.98651 0.98652,0.98652 5.91908,-0.98652 6.9056,-1.97303 0,-0.98651 0.98652,-1.97303 0.98651,0.98651 0.98651,0 1.97303,-0.98651 1.97303,-0.98651 1.97303,-0.98652 1.97303,-0.98651 0.98651,-0.98652 0.98652,0 0.98651,0 1.97303,0.98652 1.97303,-2.95955 0,-1.97302 -0.98652,-0.98652 -1.97302,-2.95954 0.98651,-0.98652 0.98651,-0.98651 1.97303,-1.97303 0,-1.97303 -2.95954,-4.93257 -3.94606,-3.94606 -4.93257,-3.94605 -0.98651,-0.98652 -0.98652,-0.98651 -0.98651,0.98651 -0.98652,0.98652 0,0 -0.98651,-0.98652 -0.98651,0 -0.98652,0.98652 0,5.91908 -0.98651,5.91909 0,0 0,0 -0.98652,-0.98652 -0.98651,0 -1.97303,0.98652 -1.97303,-0.98652 -0.98651,0 -0.98652,1.97303 -2.95954,0.98652 -0.98651,-1.97303 0.98651,-1.97303 1.97303,-0.98651 0.98651,0 0,-1.97303 -0.98651,-1.97303 0.98651,0 -6.9056,-0.98652 -5.91908,0.98652 -1.97303,-2.95954 -5.91909,-1.97303 -3.94605,0.98651 0,0.98652 -0.98652,0.98651 -0.98651,-1.97303 -1.97303,0 -0.98651,0.98652 -0.98652,0 0,0 0.98652,-0.98652 0,-0.98651 0,-0.98652 -1.97303,-0.98651 -1.97303,0 0.98651,-0.98652 0,-0.98651 0.98652,0 0.98651,0 1.97303,0.98651 0.98651,-1.97302 0.98652,-1.97303 0.98651,0 0.98652,-0.98652 0,-0.98651 -0.98652,0 1.97303,0 1.97303,0 0,0 z" stroke="#888888" stroke-width="0.5" id="RU-NEN"></path>
     <path d="m 157.02353,237.90648 0.98651,-0.98652 -2.95954,-0.98651 -0.98652,0.98651 0.98652,0.98652 1.97303,0 z m 6.9056,0.98651 -0.98652,0 -0.98651,0.98651 -2.95955,-1.97302 0,3.94605 -0.98651,2.95955 -1.97303,1.97302 0,-0.98651 0,-0.98651 0,-0.98652 -2.95954,0.98652 -0.98652,-0.98652 0.98652,-0.98651 0.98651,0 -0.98651,-5.91909 -1.97303,0 -1.97303,0.98652 0.98652,0.98651 -0.98652,0.98651 -0.98651,0.98652 -1.97303,0 0,0.98651 0,0.98652 -0.98652,1.97303 0,2.95954 0,1.97303 0.98652,0.98651 -2.95954,1.97303 -2.95955,2.95954 0,0.98652 0,0.98651 0,1.97303 2.95955,2.95954 2.95954,-0.98651 5.91908,-1.97303 4.93258,1.97303 5.91908,-3.94606 6.9056,-2.95954 0,-0.98652 0.98651,-1.97302 -3.94605,-4.93258 0,-4.93257 -2.95954,-2.95954 z" stroke="#888888" stroke-width="0.5" id="RU-YAR"></path>
@@ -235,36 +652,233 @@
     <path d="m 383.9218,307.94899 -1.97302,-1.97303 -4.93258,0 -4.93257,-0.98651 0,-2.95955 0,-3.94605 -1.97303,-0.98652 -0.98651,-2.95954 0,-2.95954 0.98651,-0.98652 0.98652,-1.97303 -1.97303,-1.97303 -0.98651,0 -0.98652,-0.98651 0,-0.98651 -1.97303,0 -0.98651,0.98651 -0.98652,0 -2.95954,0 -1.97303,0 -1.97303,0.98651 0,0 -2.95954,-2.95954 -1.97303,-2.95954 1.97303,-0.98651 0.98652,-0.98652 -1.97303,-0.98651 -0.98652,-0.98652 -2.95954,-1.97303 -2.95954,-0.98651 -0.98652,0 -0.98651,0.98651 -0.98651,-0.98651 0,-0.98651 -1.97303,0 -1.97303,0.98651 -0.98652,-0.98651 -0.98651,0 -0.98651,0 -0.98652,0 -0.98651,-1.97303 0.98651,-1.97303 -2.95954,-0.98652 -0.98652,-1.97302 0.98652,-1.97303 1.97303,0 0.98651,-2.95955 1.97303,-2.95954 0,-0.98651 -0.98651,-0.98652 0,-2.95954 -0.98652,-2.95954 -1.97303,0.98651 -2.95954,0.98652 0,0.98651 0,0.98651 -1.97303,0 -1.97303,0.98652 -1.97303,0.98651 -0.98651,-1.97303 0,-0.98651 0,0 -1.97303,0 -1.97303,0.98651 -0.98651,0 -0.98652,0.98652 0,0 -1.97302,0.98651 -0.98652,0.98652 -0.98651,5.91908 -3.94606,3.94606 -3.94606,3.94606 -1.97302,3.94605 -1.97303,4.93258 0,0.98651 0.98651,0 -0.98651,1.97303 -1.97303,0 -0.98652,2.95954 -0.98651,1.97303 0,0.98651 0.98651,0.98652 0,0.98651 0,1.97303 2.95955,1.97303 2.95954,1.97303 2.95954,6.9056 0.98652,1.97303 1.97302,2.95954 -1.97302,3.94606 -0.98652,3.94605 -0.98651,1.97303 0,2.95954 0,0 1.97303,0.98652 0,1.97303 -0.98652,3.94605 -0.98651,3.94606 2.95954,1.97303 2.95954,1.97303 0,3.94605 0,4.93258 0,1.97302 0.98652,0.98652 2.95954,0.98651 2.95954,0 0.98652,-1.97303 1.97303,-0.98651 0.98651,0 0,0.98651 2.95954,0 2.95955,0 1.97302,0.98652 0.98652,0 0.98651,-0.98652 0.98652,-0.98651 3.94605,-0.98651 1.97303,-2.95955 0.98652,-0.98651 1.97303,0 0.98651,1.97303 0,0.98651 2.95954,0 0.98652,0 2.95954,0.98652 0.98651,0.98651 0.98652,0.98651 0.98651,0 1.97303,2.95955 0.98651,3.94605 0.98652,0 0.98651,0.98652 -0.98651,0.98651 0,0.98652 1.97303,1.97303 0.98651,0 0,2.95954 -0.98651,1.97303 2.95954,1.97303 2.95954,0.98651 0.98652,0.98651 0.98651,0.98652 2.95954,0 1.97303,1.97303 3.94606,-3.94606 3.94606,-3.94606 2.95954,0 2.95954,0 2.95955,-4.93257 0.98651,-3.94606 0.98651,-0.98651 0.98652,0 0.98651,-1.97303 -0.98651,-1.97303 0,-0.98651 0.98651,0 0.98652,0.98651 3.94605,0.98652 3.94606,0.98651 0.98651,0.98652 0.98652,0.98651 1.97303,-0.98651 0.98651,0 0.98652,0 0,1.97302 1.97302,1.97303 3.94606,0 3.94606,-0.98651 0,1.97303 0.98651,1.97303 1.97303,0 1.97303,0 0.98651,0.98651 1.97303,0.98651 0.98652,-0.98651 0.98651,0 2.95954,-1.97303 1.97303,-0.98651 2.95955,1.97303 1.97302,0.98651 8.87863,-1.97303 5.91909,-3.94606 -0.98652,-1.97302 -3.94605,-1.97303 -0.98652,-6.9056 -1.97303,-3.94606 -1.97302,-1.97303 -1.97303,0 -1.97303,0 -1.97303,-2.95954 -1.97303,-2.95954 -1.97303,0 -1.97303,0 -2.95954,-2.95955 0,-0.98651 -0.98651,-1.97303 0,0 -4.93257,1.97303 -4.93258,1.97303 -1.97302,-0.98652 -1.97303,-0.98651 -3.94606,0 -2.95954,0 -1.97303,-1.97303 -0.98652,-3.94606 -4.93257,-2.95954 -3.94605,-2.95954 -4.93257,-0.98652 -1.97303,-0.98651 -1.97303,-1.97303 -1.97303,-2.95954 z" stroke="#888888" stroke-width="0.5" id="RU-KHM" style=""></path>
     <path d="m 424.36889,359.24773 -1.97303,-0.98651 -1.97303,0 -0.98651,0 -0.98652,-1.97303 -0.98651,-1.97303 -3.94606,0.98651 -3.94606,0 -1.97302,-1.97303 0,-1.97302 -0.98652,0 -0.98651,0 -1.97303,0.98651 -0.98652,-0.98651 -0.98651,-0.98652 -3.94606,-0.98651 -3.94605,-0.98652 -0.98652,-0.98651 0,0 0,0.98651 0,1.97303 -0.98651,1.97303 -0.98652,0 -0.98651,0.98651 -0.98651,3.94606 -2.95955,4.93257 -1.97303,0 -3.94605,0 -3.94606,3.94606 -3.94606,3.94606 0,0.98651 0,1.97303 -0.98651,0 0,1.97303 0,0.98651 -0.98652,0 0,0.98652 0.98652,0.98651 0,1.97303 0,0.98651 0,0.98652 0.98651,1.97303 0,0.98651 0,0.98651 -0.98651,0.98652 0.98651,1.97303 0.98652,0.98651 1.97303,1.97303 1.97302,0.98651 11.83818,3.94606 -0.98652,0.98652 6.9056,3.94605 4.93257,7.89212 6.9056,0.98651 0.98652,3.94606 5.91908,0 0,0 0.98652,0.98651 0,-0.98651 0.98651,-0.98652 1.97303,0 0.98651,0 0.98652,1.97303 -0.98652,0.98652 0,3.94605 -0.98651,0.98652 -0.98652,0.98651 0.98652,0 0,0.98652 0.98651,0.98651 0,0 1.97303,-0.98651 0.98652,-2.95955 0.98651,0.98652 0.98651,0 1.97303,0 1.97303,0 1.97303,0 1.97303,-0.98652 0.98651,0.98652 0.98652,0 0.98651,-0.98652 1.97303,-1.97302 0.98651,0 0.98652,0.98651 0.98651,-0.98651 0.98652,0 2.95954,0 2.95954,0 0,0 0.98652,-0.98652 1.97302,0.98652 1.97303,0.98651 2.95955,-1.97303 3.94605,0 0.98652,-2.95954 1.97303,-3.94606 0.98651,0 0.98651,0 0.98652,-0.98651 0,-1.97303 0.98651,0 0,-0.98652 -1.97303,-4.93257 -3.94605,-3.94605 0,-2.95955 0.98651,-2.95954 2.95954,-1.97303 1.97303,-0.98651 -1.97303,-2.95955 -2.95954,-0.98651 -0.98651,-1.97303 0,-2.95954 -1.97303,-1.97303 -0.98652,0 -0.98651,-0.98651 0,-0.98652 -1.97303,-0.98651 -3.94606,-0.98652 -2.95954,-0.98651 -3.94605,0.98651 -3.94606,-1.97302 0,-4.93258 0,-7.89211 -2.95954,-0.98651 -2.95955,-1.97303 -1.97303,0.98651 -2.95954,1.97303 -0.98651,0 -0.98652,0.98651 -1.97303,-0.98651 z" stroke="#888888" stroke-width="0.5" id="RU-TOM"></path>
     <path d="m 597.00888,330.63882 -2.95954,0 0,3.94605 -0.98651,0 -1.97303,0.98652 -0.98652,0.98651 -0.98651,0.98652 0,0 -0.98652,-0.98652 -0.98651,0 -1.97303,0 0,0.98652 0,0 -1.97303,4.93257 -0.98651,4.93257 0.98651,1.97303 0.98652,2.95954 -0.98652,0.98651 -0.98651,1.97303 0.98651,0.98652 0,1.97303 -3.94605,4.93257 -4.93257,4.93257 -1.97303,0 -0.98652,0.98651 0,0.98652 0,0 -0.98651,4.93257 1.97303,7.89211 2.95954,0.98652 1.97303,1.97302 0,0.98652 0,0.98651 0,0.98652 0,0.98651 -0.98652,0 -0.98651,0 -0.98651,0 0,0.98652 -0.98652,0.98651 -0.98651,0.98651 1.97303,1.97303 1.97302,2.95955 -0.98651,2.95954 -1.97303,1.97303 0,0.98651 -1.97303,2.95954 -0.98651,0 -0.98652,-0.98651 -0.98651,-0.98651 -1.97303,0 0,-0.98652 0,-0.98651 -0.98651,0 -1.97303,-0.98652 0,-1.97303 0,-0.98651 -0.98652,-0.98651 -2.95954,0.98651 -1.97303,0.98651 -0.98651,1.97303 0,0.98652 -7.89212,4.93257 -3.94605,7.89211 0,0 0.98651,0.98652 -0.98651,0.98651 0.98651,0.98652 0,1.97302 -3.94606,-1.97302 -1.97302,-5.91909 0,-1.97303 -0.98652,0 -0.98651,0 -0.98652,0.98652 -0.98651,3.94605 -3.94606,0 -1.97303,-0.98651 -2.95954,0 -2.95954,-0.98652 -2.95954,4.93258 -1.97303,4.93257 0.98651,0.98651 1.97303,1.97303 0,1.97303 0,2.95954 0.98651,0.98651 -0.98651,0.98652 -0.98651,0 -2.95955,1.97303 -3.94605,3.94605 -0.98652,2.95955 0.98652,1.97303 -0.98652,0.98651 -0.98651,0.98651 0,1.97303 -0.98652,2.95955 0,2.95954 -0.98651,0 -2.95954,0.98651 -2.95955,1.97303 0,0.98652 0,0.98651 0.98652,0.98651 1.97303,0.98652 1.97302,2.95954 1.97303,2.95954 1.97303,0 4.93257,3.94606 4.93257,3.94606 1.97303,0 1.97303,0 0.98652,0.98651 0,1.97303 0.98651,0.98651 3.94606,-2.95954 3.94605,-3.94606 0.98652,1.97303 0.98651,2.95955 3.94606,2.95954 4.93257,2.95954 0.98651,2.95954 0.98652,1.97303 0.98651,0 0.98652,-0.98651 6.9056,5.91908 0,1.97303 0.98651,1.97303 0.98652,0.98652 1.97302,1.97302 0,1.97303 -0.98651,1.97303 1.97303,0 0.98651,-0.98651 3.94606,0 2.95954,-2.95955 0,-0.98651 -6.9056,-1.97303 2.95955,-0.98651 4.93257,-1.97303 -0.98652,-0.98652 -1.97303,-0.98651 0,-0.98651 -0.98651,-0.98652 0,-0.98651 2.95954,2.95954 3.94606,1.97303 11.83817,-12.82469 14.79771,-21.70331 -0.98651,-7.89211 0.98651,-7.89212 0.98652,-1.97303 0.98651,0 0.98652,0 -0.98652,-1.97303 -1.97303,-0.98651 0,-0.98651 -0.98651,-0.98652 -0.98651,0 -0.98652,-4.93257 1.97303,-1.97303 2.95954,-1.97303 0.98652,0.98652 0.98651,0 0.98652,-1.97303 1.97302,-1.97303 0.98652,0.98651 0,0.98652 0,0 0.98651,0 0.98652,0.98651 2.95954,0 1.97303,0 2.95954,-1.97303 0.98652,-1.97302 0.98651,0.98651 0.98651,0.98651 0.98652,0 1.97303,0 1.97303,0 1.97302,-0.98651 0,1.97303 1.97303,1.97303 1.97303,0 1.97303,-0.98652 3.94606,0.98652 4.93257,-1.97303 4.93257,-5.91909 3.94606,0.98652 0,0.98651 -0.98652,0 0.98652,0.98652 1.97302,0 0.98652,0 1.97303,0.98651 0.98651,-0.98651 1.97303,-1.97303 0.98651,0.98651 0.98652,0 0,-2.95954 0,-2.95954 -0.98652,0 -0.98651,0 -0.98651,-6.9056 0,-0.98652 0.98651,0 0,-0.98651 0,-1.97303 0.98651,0 0.98652,-0.98651 -1.97303,-1.97303 1.97303,-1.97303 2.95954,0.98651 1.97303,0.98652 3.94606,-0.98652 -0.98652,-1.97303 0,-0.98651 -0.98651,-0.98651 -0.98652,-1.97303 0,-1.97303 0,-0.98652 -0.98651,-1.97302 0,-1.97303 -0.98651,-1.97303 -4.93258,0 -4.93257,0 0,-0.98652 0,-0.98651 -0.98651,-0.98651 0,-1.97303 -1.97303,-0.98652 -1.97303,-1.97303 -2.95954,-0.98651 -3.94606,0 -2.95954,1.97303 -1.97303,0.98651 -1.97303,0.98652 -0.98651,2.95954 -0.98652,1.97303 -0.98651,0 -0.98652,0 -3.94605,5.91908 -4.93257,4.93258 0.98651,-2.95955 -1.97303,-0.98651 -0.98651,-1.97303 0,-0.98651 -1.97303,1.97302 -1.97303,0.98652 -0.98651,0 -0.98652,0 -0.98651,0 0,0 -0.98652,0 -0.98651,0 0,0.98651 -0.98651,0 -2.95955,-0.98651 -0.98651,1.97303 -4.93257,0.98651 -0.98652,0 -0.98651,0 -0.98652,-3.94606 0,-4.93257 0.98652,-0.98651 0.98651,-0.98652 0,-1.97302 0,-0.98652 1.97303,-5.91908 1.97303,-4.93257 -2.95954,-2.95955 -0.98652,-4.93257 1.97303,-1.97303 0.98652,-1.97303 -1.97303,-2.95954 -1.97303,-1.97303 0,-4.93257 -0.98652,-6.9056 -2.95954,-2.95954 -3.94606,-0.98652 2.95955,-2.95954 0.98651,-0.98651 -0.98651,-2.95955 -0.98652,-1.97302 z" stroke="#888888" stroke-width="0.5" id="RU-IRK" style=""></path>
-  </svg>
-         </div>
+          </svg>
+        </div>
       </div>
 
-      <aside class="info-panel">
-         <!-- панель с инфой -->
-      </aside>
+      <!-- Info Panel -->
+      <div class="info-panel">
+        <div class="info-header">
+          <img src="https://flagcdn.com/w320/ru.png" alt="Флаг" class="region-flag">
+          <h2 id="region-name">Выберите субъект РФ</h2>
+        </div>
+        
+        <div class="meta">
+          <span id="region-type">Регион</span>
+          <span id="region-district">Федеральный округ</span>
+          <span id="region-population">Население</span>
+        </div>
+        
+        <p class="desc" id="region-desc">
+          Выберите субъект Российской Федерации на карте, чтобы просмотреть информацию о нём.
+        </p>
+        
+        <div class="stats">
+          <div class="stat-card">
+            <div class="stat-value" id="stat-area">0</div>
+            <div class="stat-label">Площадь (км²)</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-density">0</div>
+            <div class="stat-label">Плотность (чел/км²)</div>
+          </div>
+        </div>
+        
+        <div class="info-links">
+          <a href="#" class="btn" id="wiki-link" target="_blank"><i class="fab fa-wikipedia-w"></i> Википедия</a>
+          <a href="#" class="btn btn-outline" id="official-link" target="_blank"><i class="fas fa-external-link-alt"></i> Официальный сайт</a>
+        </div>
+      </div>
     </div>
+
+    <!-- Region List -->
+    <h3 style="color: white; margin: 30px 0 15px;">Все субъекты РФ</h3>
+    <div class="regs" id="region-list">
+      <!-- Регионы будут добавлены через JavaScript -->
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>© 2023 Интерактивная карта субъектов Российской Федерации</p>
+      <div class="footer-links">
+        <a href="#"><i class="fas fa-info-circle"></i> О проекте</a>
+        <a href="#"><i class="fas fa-database"></i> Источники данных</a>
+        <a href="#"><i class="fas fa-envelope"></i> Обратная связь</a>
+      </div>
+    </footer>
   </div>
 
-  <!-- индикатор (tooltip) — у тебя уже есть .indicator, можно использовать -->
-  <div class="indicator"></div>
+  <!-- Tooltip -->
+  <div class="indicator" id="tooltip"></div>
 
-  <!-- скрипты -->
-</body>
+  <script>
+    $(document).ready(function() {
+      // Пример данных о регионах (в реальном проекте это будет полная база)
+      const regionsData = {
+        "RU-MOW": {
+          name: "Москва",
+          type: "Город федерального значения",
+          district: "Центральный",
+          population: "13,104,177",
+          area: "2561",
+          density: "5118",
+          description: "Москва - столица России, крупнейший город страны и Европы. Важнейший политический, экономический и культурный центр. Основана в 1147 году Юрием Долгоруким. Исторический центр внесен в список Всемирного наследия ЮНЕСКО.",
+          flag: "flags/RU-MOW.png",
+          wiki: "https://ru.wikipedia.org/wiki/Москва",
+          official: "https://www.mos.ru/"
+        },
+        "RU-SPE": {
+          name: "Санкт-Петербург",
+          type: "Город федерального значения",
+          district: "Северо-Западный",
+          population: "5,601,911",
+          area: "1439",
+          density: "3836",
+          description: "Санкт-Петербург - второй по величине город России, культурная столица страны. Основан в 1703 году Петром I. Исторический центр и дворцово-парковые ансамбли пригородов включены в список Всемирного наследия ЮНЕСКО.",
+          flag: "flags/RU-SPE.png",
+          wiki: "https://ru.wikipedia.org/wiki/Санкт-Петербург",
+          official: "https://www.gov.spb.ru/"
+        },
+        "RU-KR": {
+          name: "Республика Крым",
+          type: "Республика",
+          district: "Южный",
+          population: "1,934,630",
+          area: "26,081",
+          density: "74",
+          description: "Республика Крым - субъект Российской Федерации, расположенный на Крымском полуострове. Имеет богатую историю, уникальную природу и является важным туристическим регионом. Столица - город Симферополь.",
+          flag: "flags/RU-KR.png",
+          wiki: "https://ru.wikipedia.org/wiki/Республика_Крым",
+          official: "https://rk.gov.ru/"
+        },
+        "RU-ARK": {
+          name: "Архангельская область",
+          type: "Область",
+          district: "Северо-Западный",
+          population: "1,127,051",
+          area: "589,913",
+          density: "1.9",
+          description: "Архангельская область - регион на севере Европейской части России. Включает Ненецкий автономный округ и архипелаги в Северном Ледовитом океане. Известна деревянным зодчеством, поморской культурой и космодромом Плесецк.",
+          flag: "flags/RU-ARK.png",
+          wiki: "https://ru.wikipedia.org/wiki/Архангельская_область",
+          official: "https://dvinaland.ru/"
+        }
+        // Здесь будут данные по всем остальным субъектам
+      };
 
-  <div class="indicator">
-    <img src="" alt="">
-  </div>
+      // Инициализация
+      const $paths = $('svg path');
+      const $tooltip = $('#tooltip');
+      const $regionName = $('#region-name');
+      const $regionType = $('#region-type');
+      const $regionDistrict = $('#region-district');
+      const $regionPopulation = $('#region-population');
+      const $regionDesc = $('#region-desc');
+      const $statArea = $('#stat-area');
+      const $statDensity = $('#stat-density');
+      const $wikiLink = $('#wiki-link');
+      const $officialLink = $('#official-link');
+      const $regionList = $('#region-list');
+      const $search = $('.search');
 
+      // Заполняем список регионов
+      for (const id in regionsData) {
+        if (regionsData.hasOwnProperty(id)) {
+          const region = regionsData[id];
+          $regionList.append(`<div class="reg" data-id="${id}">${region.name}</div>`);
+        }
+      }
 
-  <div class="regs">
+      // Обработчики событий для карты
+      $paths.hover(
+        function(e) {
+          const id = $(this).attr('id');
+          const region = regionsData[id];
+          if (region) {
+            $tooltip.text(region.name).css({
+              display: 'block',
+              left: e.pageX,
+              top: e.pageY
+            });
+          }
+        },
+        function() {
+          $tooltip.hide();
+        }
+      );
 
-  </div>
- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+      $paths.mousemove(function(e) {
+        $tooltip.css({
+          left: e.pageX,
+          top: e.pageY - 40
+        });
+      });
 
-  <script src="js/index.js"></script>
+      $paths.click(function() {
+        const id = $(this).attr('id');
+        selectRegion(id);
+      });
 
+      // Обработчики для списка регионов
+      $('.reg').click(function() {
+        const id = $(this).data('id');
+        selectRegion(id);
+        
+        // Прокрутка к карте
+        $('html, body').animate({
+          scrollTop: $('.map-card').offset().top - 100
+        }, 800);
+      });
 
+      // Поиск
+      $search.on('input', function() {
+        const query = $(this).val().toLowerCase();
+        $('.reg').each(function() {
+          const text = $(this).text().toLowerCase();
+          if (text.includes(query)) {
+            $(this).show();
+          } else {
+            $(this).hide();
+          }
+        });
+      });
 
+      // Функция выбора региона
+      function selectRegion(id) {
+        const region = regionsData[id];
+        
+        if (!region) {
+          $regionName.text("Регион не найден");
+          $regionDesc.text("Информация о данном субъекте отсутствует в базе данных.");
+          return;
+        }
 
+        // Снимаем выделение
+        $paths.removeClass('active');
+        $('.reg').removeClass('active');
+        
+        // Устанавливаем выделение
+        $(`#${id}`).addClass('active');
+        $(`.reg[data-id="${id}"]`).addClass('active');
+        
+        // Обновляем информацию
+        $regionName.text(region.name);
+        $regionType.text(region.type);
+        $regionDistrict.text(region.district);
+        $regionPopulation.text(region.population);
+        $regionDesc.text(region.description);
+        $statArea.text(region.area);
+        $statDensity.text(region.density);
+        $wikiLink.attr('href', region.wiki);
+        $officialLink.attr('href', region.official);
+        
+        // Обновляем флаг (в реальном проекте путь будет flags/ + id + .png)
+        $('.region-flag').attr('src', `https://flagcdn.com/w320/${id.substring(3).toLowerCase()}.png`);
+      }
+
+      // Автоматически выбираем Москву при загрузке
+      setTimeout(() => selectRegion('RU-MOW'), 1000);
+    });
+  </script>
 </body>
 </html>
