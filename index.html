@@ -28,13 +28,84 @@
     html, body {
       height: 100%;
       font-family: 'Inter', system-ui, Arial, sans-serif;
-      <div class="video-background">
-  <video autoplay muted playsinline id="bg-video">
-    <source src="videos/main-bg.webm" type="video/webm">
-    <source src="videos/main-bg.mp4" type="video/mp4">
-    <!-- Если видео не поддерживается, покажет фолбэк (можно добавить <img>) -->
-  </video>
-</div>
+      /* Удаляем градиент, так как будет видео */
+    }
+
+    /* Добавляем новые стили для видео-фона */
+    .video-background {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+      /* Градиентный фолбэк */
+      background: linear-gradient(135deg, var(--bg1), var(--bg2));
+    }
+
+    #bg-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: opacity 1s;
+    }
+
+    /* Остальные ваши стили остаются без изменений */
+  </style>
+</head>
+<body>
+  <!-- Добавляем видео-фон ПЕРЕД основным контентом -->
+  <div class="video-background">
+    <video autoplay muted playsinline id="bg-video">
+      <source src="videos/main-bg.webm" type="video/webm">
+      <source src="videos/main-bg.mp4" type="video/mp4">
+      <!-- Фолбэк-изображение -->
+      <img src="videos/fallback.jpg" alt="Фон">
+    </video>
+  </div>
+
+  <!-- Ваш существующий контент -->
+  <div class="container">
+    <!-- Header -->
+    <header class="site-header">
+      <div class="brand">
+        <div class="logo">
+          <i class="fas fa-map-marked-alt"></i>
+        </div>
+        <h1>Субъекты Российской Федерации</h1>
+      </div>
+      <nav class="nav">
+        <a href="#"><i class="fas fa-home"></i> Главная</a>
+        <a href="#"><i class="fas fa-book"></i> О проекте</a>
+        <a href="#"><i class="fas fa-database"></i> Данные</a>
+        <a href="#"><i class="fas fa-envelope"></i> Контакты</a>
+      </nav>
+    </header>
+    
+    <!-- Остальной контент -->
+    ...
+  </div>
+
+  <!-- Добавляем скрипт в конец body -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const video = document.getElementById('bg-video');
+      
+      // После окончания видео плавно показываем градиент
+      video.addEventListener('ended', function() {
+        video.style.opacity = '0';
+      });
+
+      // Попытка автовоспроизведения
+      video.play().catch(e => {
+        console.log("Автовоспроизведение заблокировано:", e);
+        video.style.opacity = '0';
+      });
+    });
+  </script>
+</body>
+</html>
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
@@ -556,6 +627,16 @@
   </style>
 </head>
 <body>
+  <!-- Видео-фон (добавляем в самое начало body) -->
+  <div class="video-background">
+    <video autoplay muted playsinline id="bg-video">
+      <source src="videos/main-bg.webm" type="video/webm">
+      <source src="videos/main-bg.mp4" type="video/mp4">
+      <!-- Фолбэк, если видео не поддерживается -->
+      <img src="videos/fallback-image.jpg" alt="Фоновое изображение">
+    </video>
+  </div>
+
   <div class="container">
     <!-- Header -->
     <header class="site-header">
@@ -572,6 +653,24 @@
         <a href="#"><i class="fas fa-envelope"></i> Контакты</a>
       </nav>
     </header>
+    
+    <!-- Остальной контент -->
+    ...
+  </div>
+
+  <!-- Скрипт для остановки на последнем кадре -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const video = document.getElementById('bg-video');
+      
+      video.addEventListener('ended', function() {
+        video.pause();
+      });
+
+      video.play().catch(e => console.log("Автовоспроизведение заблокировано:", e));
+    });
+  </script>
+</body>
 
     <!-- Search -->
     <div class="search-container">
