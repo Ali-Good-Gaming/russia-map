@@ -33,19 +33,6 @@
       -webkit-font-smoothing: antialiased;
       scroll-behavior: smooth;
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const video = document.getElementById('bg-video');
-    
-    // Остановить видео на последнем кадре после завершения
-    video.addEventListener('ended', function() {
-      video.pause();
-      video.classList.add('paused-on-last-frame'); // Добавляем класс для стилей (опционально)
-    });
-
-    // Начать воспроизведение, даже если браузер заблокировал autoplay (резервный вариант)
-    video.play().catch(e => console.log("Автовоспроизведение заблокировано:", e));
-  });
-</script>
     }
 
     a {
